@@ -14,9 +14,14 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::basic_ready);
     connect(m_url, &URL::query_ready,
             this, &MainWindow::query_ready);
+    connect(m_url, &URL::fragment_ready,
+            this, &MainWindow::fragment_ready);
 
     ui->queryParams->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->queryParams->horizontalHeader()->setStretchLastSection(true);
+
+    ui->fragmentParams->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->fragmentParams->horizontalHeader()->setStretchLastSection(true);
 }
 
 MainWindow::~MainWindow()
@@ -31,22 +36,29 @@ void MainWindow::on_parse_clicked()
 
 void MainWindow::on_unparse_clicked()
 {
-    auto& tableWidget = ui->queryParams;
     QList<QPair<QString,QString>> queryItems;
+    QList<QPair<QString,QString>> fragmentItems;
 
-    for (auto row = 0; row < tableWidget->rowCount(); ++row) {
-        QTableWidgetItem *key = tableWidget->item(row, 0);
+    auto collect = [&](const QTableWidget* table, QList<QPair<QString,QString>>& container)
+    {
+        for (auto row = 0; row < table->rowCount(); ++row) {
+            QTableWidgetItem *key = table->item(row, 0);
 
-        if (key->checkState() != Qt::CheckState::Checked)
-            continue;
+            if (key->checkState() != Qt::CheckState::Checked)
+                continue;
 
-        QTableWidgetItem *values = tableWidget->item(row, 1);
+            QTableWidgetItem *values = table->item(row, 1);
 
-        queryItems.append({key->text(), values->text()});
-    }
+            container.append({key->text(), values->text()});
+        }
+    };
+
+    collect(ui->queryParams, queryItems);
+    collect(ui->fragmentParams, fragmentItems);
 
     auto unparsed = m_url->unparse(
                 queryItems,
+                fragmentItems,
                 ui->scheme->text(),
                 ui->host->text(),
                 ui->path->text(),
@@ -62,6 +74,7 @@ void MainWindow::on_unparse_clicked()
 void MainWindow::basic_ready()
 {
     ui->queryParams->setRowCount(0);
+    ui->fragmentParams->setRowCount(0);
 
     auto scheme = m_url->scheme();
     auto host = m_url->host();
@@ -90,17 +103,27 @@ void MainWindow::query_ready()
     const auto& query = m_url->queryItems();
 
     for (const auto& params : qAsConst(query))
-        tableWidget_AddQueryParameter(params.first, params.second);
+        table_AddPair(ui->queryParams, params.first, params.second);
+
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->queryTab), QString("Query (%1)").arg(ui->queryParams->rowCount()));
 }
 
-void MainWindow::tableWidget_AddQueryParameter(const QString &key, const QString &values)
+void MainWindow::fragment_ready()
+{
+    const auto& fragment = m_url->fragmentItems();
+
+    for (const auto& params : qAsConst(fragment))
+        table_AddPair(ui->fragmentParams, params.first, params.second);
+
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->fragmentTab), QString("Fragment (%1)").arg(ui->fragmentParams->rowCount()));
+}
+
+void MainWindow::table_AddPair(QTableWidget* tableWidget, const QString& key, const QString& values)
 {
     if (key.isEmpty()) {
         ui->statusbar->showMessage("Key cant be empty!");
         return;
     }
-
-    auto& tableWidget = ui->queryParams;
 
     QTableWidgetItem *itemKey = new QTableWidgetItem(key);
     itemKey->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
@@ -120,5 +143,15 @@ void MainWindow::on_addQueryParam_clicked()
     const auto& key = ui->queryParamKey->text();
     const auto& values = ui->queryParamValues->text();
 
-    tableWidget_AddQueryParameter(key, values);
+    table_AddPair(ui->queryParams, key, values);
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->queryTab), QString("Query (%1)").arg(ui->queryParams->rowCount()));
+}
+
+void MainWindow::on_addFragmentParam_clicked()
+{
+    const auto& key = ui->fragmentParamKey->text();
+    const auto& values = ui->fragmentParamValues->text();
+
+    table_AddPair(ui->fragmentParams, key, values);
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->fragmentTab), QString("Fragment (%1)").arg(ui->fragmentParams->rowCount()));
 }

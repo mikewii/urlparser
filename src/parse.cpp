@@ -21,6 +21,11 @@ void URL::parse(const QString &url)
 
     emit basic_ready();
 
+    if (QUrl::hasFragment()) {
+        m_fragment.setQuery(QUrl::fragment());
+        emit fragment_ready();
+    }
+
     if (QUrl::hasQuery()) {
         m_query.setQuery(QUrl::query());
         emit query_ready();
@@ -28,6 +33,7 @@ void URL::parse(const QString &url)
 }
 
 QString URL::unparse(const QList<QPair<QString,QString>>& queryItems,
+                     const QList<QPair<QString,QString>>& fragmentItems,
                      const QString& scheme,
                      const QString& host,
                      const QString& path,
@@ -43,6 +49,7 @@ QString URL::unparse(const QList<QPair<QString,QString>>& queryItems,
 
     QUrl url(QUrl::url());
     QUrlQuery query;
+    QUrlQuery fragment;
 
     setIfNotEmpty(scheme, url.setScheme);
     setIfNotEmpty(host, url.setHost);
@@ -54,6 +61,9 @@ QString URL::unparse(const QList<QPair<QString,QString>>& queryItems,
 
     setIfNotEmpty(queryItems, query.setQueryItems);
     setIfNotEmpty(query, url.setQuery);
+
+    setIfNotEmpty(fragmentItems, fragment.setQueryItems);
+    setIfNotEmpty(fragment.toString(), url.setFragment);
 
     if (port != -1)
         url.setPort(port);
