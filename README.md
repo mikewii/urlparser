@@ -5,7 +5,7 @@
 # How to build
 First make sure you have qt library installed:
 ```bash
-ldconfig -p | grep -i -E libqt+[0-9]+core
+sudo ldconfig -p | grep -i -E libqt+[0-9]+core
 ```
 If you see something like this `libQt5Core.so.5` then you have needed libs.
 
