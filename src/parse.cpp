@@ -11,6 +11,7 @@ void URL::parse(const QString &url)
 {
     QUrl::clear();
     m_query.clear();
+    m_fragment.clear();
 
     QUrl::setUrl(url);
 
@@ -47,7 +48,7 @@ QString URL::unparse(const QList<QPair<QString,QString>>& queryItems,
     if (!var.isEmpty()) \
         fun(var) \
 
-    QUrl url(QUrl::url());
+    QUrl url;
     QUrlQuery query;
     QUrlQuery fragment;
 

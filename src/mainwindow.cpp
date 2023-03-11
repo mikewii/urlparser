@@ -75,6 +75,8 @@ void MainWindow::basic_ready()
 {
     ui->queryParams->setRowCount(0);
     ui->fragmentParams->setRowCount(0);
+    updateQueryParamsCount();
+    updateFragmentParamsCount();
 
     auto scheme = m_url->scheme();
     auto host = m_url->host();
@@ -105,7 +107,7 @@ void MainWindow::query_ready()
     for (const auto& params : qAsConst(query))
         table_AddPair(ui->queryParams, params.first, params.second);
 
-    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->queryTab), QString("Query (%1)").arg(ui->queryParams->rowCount()));
+
 }
 
 void MainWindow::fragment_ready()
@@ -115,7 +117,7 @@ void MainWindow::fragment_ready()
     for (const auto& params : qAsConst(fragment))
         table_AddPair(ui->fragmentParams, params.first, params.second);
 
-    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->fragmentTab), QString("Fragment (%1)").arg(ui->fragmentParams->rowCount()));
+    updateFragmentParamsCount();
 }
 
 void MainWindow::table_AddPair(QTableWidget* tableWidget, const QString& key, const QString& values)
@@ -138,13 +140,23 @@ void MainWindow::table_AddPair(QTableWidget* tableWidget, const QString& key, co
     tableWidget->setItem(tableWidget->rowCount() - 1, 1, itemValues);
 }
 
+void MainWindow::updateQueryParamsCount(void)
+{
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->queryTab), QString("Query (%1)").arg(ui->queryParams->rowCount()));
+}
+
+void MainWindow::updateFragmentParamsCount(void)
+{
+    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->fragmentTab), QString("Fragment (%1)").arg(ui->fragmentParams->rowCount()));
+}
+
 void MainWindow::on_addQueryParam_clicked()
 {
     const auto& key = ui->queryParamKey->text();
     const auto& values = ui->queryParamValues->text();
 
     table_AddPair(ui->queryParams, key, values);
-    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->queryTab), QString("Query (%1)").arg(ui->queryParams->rowCount()));
+    updateQueryParamsCount();
 }
 
 void MainWindow::on_addFragmentParam_clicked()
@@ -153,5 +165,5 @@ void MainWindow::on_addFragmentParam_clicked()
     const auto& values = ui->fragmentParamValues->text();
 
     table_AddPair(ui->fragmentParams, key, values);
-    ui->mainTab->setTabText(ui->mainTab->indexOf(ui->fragmentTab), QString("Fragment (%1)").arg(ui->fragmentParams->rowCount()));
+    updateFragmentParamsCount();
 }

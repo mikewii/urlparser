@@ -32,4 +32,6 @@ private:
     URL *m_url;
 
     void table_AddPair(QTableWidget* tableWidget, const QString& key, const QString& values);
+    void updateQueryParamsCount(void);
+    void updateFragmentParamsCount(void);
 };
