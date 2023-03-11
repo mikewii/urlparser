@@ -107,7 +107,7 @@ void MainWindow::query_ready()
     for (const auto& params : qAsConst(query))
         table_AddPair(ui->queryParams, params.first, params.second);
 
-
+    updateQueryParamsCount();
 }
 
 void MainWindow::fragment_ready()
