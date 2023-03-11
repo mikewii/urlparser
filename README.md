@@ -31,7 +31,7 @@ sudo make install
 ![example2]
 ![example2]
 
-[example1]: https://github.com/mikewii/urlparser/raw/master/resources/example1.png
+[example1]: https://github.com/mikewii/urlparser/raw/main/resources/example1.png
 
-[example2]: https://github.com/mikewii/urlparser/raw/master/resources/example2.png
-[example3]: https://github.com/mikewii/urlparser/raw/master/resources/example3.png
+[example2]: https://github.com/mikewii/urlparser/raw/main/resources/example2.png
+[example3]: https://github.com/mikewii/urlparser/raw/main/resources/example3.png
